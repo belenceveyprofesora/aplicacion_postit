@@ -10,45 +10,72 @@
     <!-- Barra superior -->
     <header class="toolbar">
         <div class="toolbar-left">
-            <h1>Mis Post-its</h1>
-            <button id="btn-new">+ Nuevo Post-it</button>
+            <h1>📌 Mis Post-its</h1>
+            <button id="btn-new" class="btn-new">+ Nuevo post-it</button>
         </div>
         <div class="toolbar-right">
-            <span id="status-text">Cargando...</span>
-            <button id="btn-save-git" disabled>Guardar (git)</button>
-            <button id="btn-config" title="Configuración">⚙️</button>
+            <!-- Indicador de estado: el punto cambia de color según el estado -->
+            <span id="status" class="status" data-kind="read" role="status" aria-live="polite">
+                <span class="status-dot"></span>
+                <span id="status-text">Cargando…</span>
+            </span>
+            <button id="btn-save-git" class="btn-save">Guardar (git)</button>
+            <button id="btn-config" class="btn-icon" title="Configuración" aria-label="Configuración">⚙️</button>
         </div>
     </header>
 
-    <!-- Tablero (Corcho) -->
+    <!-- Aviso de modo lectura (se muestra solo si no hay token) -->
+    <div id="read-banner" class="read-banner hidden">Modo lectura: cargá tu token para guardar en git</div>
+
+    <!-- Tablero (corcho) -->
     <main id="board"></main>
 
-    <!-- Modal de Configuración -->
-    <div id="config-modal" class="modal hidden">
+    <!-- Aviso flotante con "Deshacer" -->
+    <div id="toast" class="toast hidden" role="status">
+        <span id="toast-text"></span>
+        <button id="toast-action" class="toast-action">Deshacer</button>
+    </div>
+
+    <!-- Panel de configuración (solo se abre al tocar Guardar sin token, o con el engranaje) -->
+    <div id="config-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="config-title">
         <div class="modal-content">
-            <h2>Configuración de GitHub</h2>
-            <p>Conectá tu repositorio para guardar los post-its.</p>
-            
-            <label>Usuario de GitHub:</label>
-            <input type="text" id="conf-user" placeholder="Ej: octocat">
-            
-            <label>Repositorio:</label>
-            <input type="text" id="conf-repo" placeholder="Ej: mi-pizarra">
-            
-            <label>Rama:</label>
-            <input type="text" id="conf-branch" value="data">
-            
-            <label>Ruta del archivo:</label>
-            <input type="text" id="conf-path" value="data/datos.json">
-            
-            <label>Token (Fine-grained):</label>
-            <input type="password" id="conf-token" placeholder="github_pat_...">
-            
+            <h2 id="config-title">Configuración de GitHub</h2>
+            <p id="config-msg" class="modal-msg">Para subir tus post-its a GitHub necesitás cargar un token.</p>
+
+            <label for="conf-token">Token (fine-grained)</label>
+            <input type="password" id="conf-token" placeholder="github_pat_..." autocomplete="off">
+            <small id="token-state" class="hint"></small>
+
+            <!-- Usuario y repositorio se detectan solos desde la URL de GitHub Pages -->
+            <details id="advanced">
+                <summary>Opciones avanzadas</summary>
+                <label for="conf-user">Usuario de GitHub</label>
+                <input type="text" id="conf-user" placeholder="Ej: octocat">
+                <label for="conf-repo">Repositorio</label>
+                <input type="text" id="conf-repo" placeholder="Ej: mi-pizarra">
+                <small id="auto-hint" class="hint"></small>
+                <label for="conf-branch">Rama</label>
+                <input type="text" id="conf-branch" placeholder="data">
+                <label for="conf-path">Ruta del archivo</label>
+                <input type="text" id="conf-path" placeholder="data/datos.json">
+            </details>
+
             <div class="modal-buttons">
                 <button id="btn-forget" class="btn-danger">Olvidar token</button>
-                <button id="btn-save-config" class="btn-primary">Guardar y Conectar</button>
+                <span class="spacer"></span>
+                <button id="btn-cancel-config" class="btn-secondary">Cancelar</button>
+                <button id="btn-save-config" class="btn-primary">Guardar</button>
             </div>
             <div id="config-error" class="error-msg"></div>
+        </div>
+    </div>
+
+    <!-- Diálogo genérico (reemplaza a confirm()/alert() del navegador) -->
+    <div id="dialog-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+        <div class="modal-content">
+            <h2 id="dialog-title"></h2>
+            <p id="dialog-msg" class="modal-msg"></p>
+            <div id="dialog-buttons" class="modal-buttons"></div>
         </div>
     </div>
 
